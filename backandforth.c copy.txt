@@ -1,0 +1,119 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// Function prototypes
+extern int addStr(char *str1, char *str2);
+extern int isPalindrome(char *string);
+extern int factStr(char *string);
+extern void palindromeCheck();
+
+// Function prototypes for C functions
+void getStringInput(const char* prompt, char* str, int size);
+int getInt(const char* prompt);
+int intFact(int n);
+
+int main() {
+    int choice; // User's choice
+    int sum; // Holds the sum of two strings from assembly function
+    char str1[100], str2[100]; // Strings to send to assembly function
+    char string[100]; // String to send to assembly function for factorial
+    int value; // Used to see if EAX returned 1 or 0
+
+    do {
+        printf("Choose a number from the following menu:\n");
+        printf("1) Add two numbers together\n");
+        printf("2) Test if a string is a palindrome (C -> ASM)\n");
+        printf("3) Print the factorial of a number\n");
+        printf("4) Test if a string is a palindrome (ASM -> C)\n");
+        printf("Enter a number choice (1-4), or 0 to exit: ");
+        choice = getInt("Enter a number choice (1-4), or 0 to exit: ");
+
+        switch (choice) {
+            case 1:
+                // Call assembly function to add two strings
+                // get the strings from the user
+                getStringInput("Enter a string to add: ", str1, sizeof(str1));
+                getStringInput("Enter another string to add: ", str2, sizeof(str2));
+                sum = addStr(str1, str2);
+                printf("The sum of the two strings is: %d\n", sum);
+                break;
+            case 2:
+                // Call assembly function to check if string is a palindrome
+                getStringInput("Enter a string to check if it's a palindrome: ", string, sizeof(string));
+                value = isPalindrome(string);
+                if (value == 1) {
+                    printf("The string is a palindrome.\n");
+                } else {
+                    printf("The string is not a palindrome.\n");
+                }
+                break;
+            // case 3:
+            // // Call assembly function to get the factorial of a string
+            //     getStringInput("Enter a number to get the factorial: ", string, sizeof(string));
+            //     printf("The factorial of the number is: %d\n", factStr(string));
+            //     break;
+            // case 4:
+            //     // Call assembly function to test palindrome
+            //     palindromeCheck();
+            //     break;
+            case 0:
+                printf("Exiting program... Bye.\n");
+                break;
+            default:
+                printf("Invalid choice. Please try again.\n");
+        }
+    } while (choice != 0);
+
+    return 0;
+}
+
+// Function definitions
+// Get string from user
+void getStringInput(const char* prompt, char* str, int size) {
+    printf("%s", prompt);
+    fgets(str, size, stdin);
+    str[strcspn(str, "\n")] = 0; // remove newline
+}
+
+// Get int input from user
+int getInt(const char* prompt) {
+    int num;
+    char input[100];
+    
+    // Get input from user
+    printf("%s", prompt);
+    fgets(input, sizeof(input), stdin);
+    while (sscanf(input, "%d", &num) != 1) {
+        printf("Invalid input. Please enter an integer.\n");
+        fgets(input, sizeof(input), stdin);
+    }
+    
+    return num;
+}
+
+// C prototype Get the factorial of an int
+int fact(int n) {
+    if (n <= 1) {
+        return 1;
+    } else {
+        return n * intFact(n - 1);
+    }
+
+}
+
+// C - prototype Check if string is a palindrome
+int is_a_palindrome(char *string) {
+    int i = 0;
+    int j = strlen(string) - 1;
+    while (i < j) {
+        if (string[i] != string[j]) {
+            return 0;
+        }
+        i++;
+        j--;
+    }
+    return 1;
+}
+    
+

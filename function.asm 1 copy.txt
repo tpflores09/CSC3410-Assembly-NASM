@@ -1,0 +1,131 @@
+BITS 32
+
+SEGMENT .data
+   usermsg DB "Enter a string: ", 0xA, 0xD
+   lenName EQU $-usermsg
+   palindromemsg DB "It is a palindrome", 10
+   lenpalindromemsg EQU $-palindromemsg
+   notpalindromemsg DB "It is not a palidrome", 10
+   lennotpalindromemsg EQU $-notpalindromemsg
+   newline DB 10
+
+SEGMENT .bss
+   buf RESB 1024
+   buf_len EQU $-buf
+
+
+SECTION .text
+;    GLOBAL _start
+
+; global functions to call from nasm to c
+global addStr
+global isPalindrome
+global factStr
+global palindromeCheck
+
+; External functions for nasm to use
+extern atoi
+extern intFact
+extern is_palindrome
+
+; addStr function
+addStr:
+    ; callee stack setup
+    push ebp
+    mov ebp, esp
+    push ebx
+    push edi
+    push esi
+
+    ; get the string and length from the stack
+    ; place the first value into eax
+    mov eax, [ebp+8]
+    ; push the first value onto the stack
+    push eax
+    ; call atoi to convert the string to an integer
+    call atoi ;result stored in eax
+    ; store the result in ebx
+    mov ebx, eax
+    ; Clean the stack
+    add esp, 4
+
+    ; get second value from the stack
+    mov eax, [ebp+12]
+    ; push the second value onto the stack
+    push eax
+    call atoi ;result stored in eax
+    add eax, ebx
+    add esp, 4
+
+    ; clean up the stack
+    pop esi
+    pop edi
+    pop ebx
+    mov ebp, esp     //use this on each one?
+    pop ebp
+    ret ; Return the result to the C caller
+
+
+; Palindrome function to check if a string is a palindrome
+isPalindrome:
+    ; callee stack setup
+    push ebp
+    mov ebp, esp
+    push ebx
+    push edi
+    push esi
+
+    ; get the string and length from the stack
+    mov esi, [ebp+8]       ; Start of the string
+    mov edi, esi
+
+
+    ; find the end of the string
+    xor ecx, ecx ; Clear the counter
+check_empty_palindrome:
+    cmp byte [edi + ecx], 0 ; Check if the character is null
+    jne _next_char         ; If not null, continue to the next character
+    jmp _found_end         ; Jump out of the loop once null is found
+
+    _next_char:
+    inc ecx
+    jmp check_empty_palindrome
+
+    _found_end:
+    dec ecx                ; Adjust for one past the last valid character
+    jz end_is_palindrome
+
+    palindrome_loop:
+        mov al, [esi]       ; Load the first character
+        mov bl, [edi + ecx]       ; Load the last character
+        cmp al, bl          ; Compare the characters
+        jne not_a_palindrome
+
+        inc esi             ; Move to the next character
+        dec ecx             ; Move to the previous character
+        jns palindrome_loop
+
+end_is_palindrome:
+    mov eax, 1             ; Indicate is a palindrome
+    pop edi             ; Restore registers
+    pop esi
+    pop ebx
+    mov esp, ebp        ; Clean up the stack frame
+    pop ebp
+    ret
+
+not_a_palindrome:
+    mov eax, 0             ; Indicate not a palindrome
+    pop edi             ; Restore registers
+    pop esi
+    pop ebx
+    mov esp, ebp        ; Clean up the stack frame
+    pop ebp
+    ret
+
+
+
+case 3 and case 4, asfnsenfaaaefff  e
+set up stack for 4
+
+
